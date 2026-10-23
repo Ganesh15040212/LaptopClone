@@ -1,0 +1,27 @@
+[package]
+name = "laptopclone"
+version = "0.1.0"
+description = "LaptopClone P2P migration desktop app"
+authors = ["LaptopClone"]
+edition = "2021"
+
+[lib]
+name = "laptopclone_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+mdns-sd = "0.21"
+if-addrs = "0.15"
+tokio = { version = "1", features = ["rt", "time", "macros", "io-util", "net", "fs"] }
+thiserror = "1"
+ring = "0.17"
+
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.55"
+
