@@ -16,6 +16,8 @@ interface MigrationStoreState {
   pairedPeer: PeerDevice | null;
   peer: PeerDevice | null;
   scannedItems: ScannedItem[];
+  remoteItems: ScannedItem[];
+  pairingCode: string | null;
   metrics: TransferMetrics;
 }
 
@@ -27,7 +29,10 @@ interface MigrationStoreActions {
   setPairedPeer: (peer: PeerDevice | null) => void;
   setPeer: (peer: PeerDevice | null) => void;
   setScannedItems: (items: ScannedItem[]) => void;
+  setRemoteItems: (items: ScannedItem[]) => void;
+  setPairingCode: (code: string | null) => void;
   toggleItem: (id: string) => void;
+  toggleRemoteItem: (id: string) => void;
   updateProgress: (metrics: Partial<TransferMetrics>) => void;
   reset: () => void;
 }
@@ -50,6 +55,8 @@ export const useMigrationStore = create<MigrationStore>()((set) => ({
   pairedPeer: null,
   peer: null,
   scannedItems: [],
+  remoteItems: [],
+  pairingCode: null,
   metrics: { ...initialMetrics },
 
   setRole: (role) => set({ role }),
@@ -65,10 +72,19 @@ export const useMigrationStore = create<MigrationStore>()((set) => ({
   setPeer: (peer) => set({ peer, pairedPeer: peer }),
 
   setScannedItems: (items) => set({ scannedItems: items }),
+  setRemoteItems: (items) => set({ remoteItems: items }),
+  setPairingCode: (code) => set({ pairingCode: code }),
 
   toggleItem: (id) =>
     set((state) => ({
       scannedItems: state.scannedItems.map((item) =>
+        item.id === id ? { ...item, selected: !item.selected } : item
+      ),
+    })),
+
+  toggleRemoteItem: (id) =>
+    set((state) => ({
+      remoteItems: state.remoteItems.map((item) =>
         item.id === id ? { ...item, selected: !item.selected } : item
       ),
     })),
@@ -87,6 +103,8 @@ export const useMigrationStore = create<MigrationStore>()((set) => ({
       pairedPeer: null,
       peer: null,
       scannedItems: [],
+      remoteItems: [],
+      pairingCode: null,
       metrics: { ...initialMetrics },
     }),
 }));

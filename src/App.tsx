@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMigrationStore } from "./store/useMigrationStore";
 import type { ScannedItem } from "./types";
 import RoleSelection from "./components/RoleSelection";
-import PinPairing from "./components/PinPairing";
+import PairingScreen from "./components/PairingScreen";
 import CategorySelection from "./components/CategorySelection";
 import TransferDashboard from "./components/TransferDashboard";
 
@@ -18,14 +18,25 @@ const MOCK_ITEMS: ScannedItem[] = [
 
 export default function App() {
   const [step, setStep] = useState(1);
+  const role = useMigrationStore((s) => s.role);
   const setScannedItems = useMigrationStore((s) => s.setScannedItems);
+  const setRemoteItems = useMigrationStore((s) => s.setRemoteItems);
   const scannedItems = useMigrationStore((s) => s.scannedItems);
+  const remoteItems = useMigrationStore((s) => s.remoteItems);
 
   useEffect(() => {
     if (scannedItems.length === 0) {
       setScannedItems(MOCK_ITEMS);
     }
   }, [scannedItems.length, setScannedItems]);
+
+  useEffect(() => {
+    // Receiver chooses from the sender's manifest. In a real run this is fetched
+    // over the paired connection; here we seed preview data for the new laptop.
+    if (role === "receiver" && remoteItems.length === 0) {
+      setRemoteItems(MOCK_ITEMS.map((item) => ({ ...item, selected: false })));
+    }
+  }, [role, remoteItems.length, setRemoteItems]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -36,10 +47,16 @@ export default function App() {
         </header>
 
         {step === 1 && <RoleSelection onNext={() => setStep(2)} />}
-        {step === 2 && <PinPairing onNext={() => setStep(3)} onBack={() => setStep(1)} />}
-        {step === 3 && <CategorySelection onNext={() => setStep(4)} onBack={() => setStep(2)} />}
+        {step === 2 && <PairingScreen onNext={() => setStep(3)} onBack={() => setStep(1)} />}
+        {step === 3 && role === "receiver" && (
+          <CategorySelection onNext={() => setStep(4)} onBack={() => setStep(2)} />
+        )}
+        {step === 3 && role !== "receiver" && (
+          <TransferDashboard onBack={() => setStep(2)} />
+        )}
         {step === 4 && <TransferDashboard onBack={() => setStep(3)} />}
       </div>
     </div>
   );
 }
+

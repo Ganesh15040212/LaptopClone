@@ -16,14 +16,20 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function CategorySelection({ onNext, onBack }: Props) {
+  const role = useMigrationStore((s) => s.role);
   const scannedItems = useMigrationStore((s) => s.scannedItems);
+  const remoteItems = useMigrationStore((s) => s.remoteItems);
   const toggleItem = useMigrationStore((s) => s.toggleItem);
+  const toggleRemoteItem = useMigrationStore((s) => s.toggleRemoteItem);
   const updateProgress = useMigrationStore((s) => s.updateProgress);
 
-  const selectedBytes = scannedItems
+  const items = role === "receiver" ? remoteItems : scannedItems;
+  const toggle = role === "receiver" ? toggleRemoteItem : toggleItem;
+
+  const selectedBytes = items
     .filter((item) => item.selected)
     .reduce((sum, item) => sum + item.sizeBytes, 0);
-  const totalBytes = scannedItems.reduce((sum, item) => sum + item.sizeBytes, 0);
+  const totalBytes = items.reduce((sum, item) => sum + item.sizeBytes, 0);
 
   const handleStart = () => {
     updateProgress({ totalBytes: selectedBytes, bytesTransferred: 0, currentFile: "" });
@@ -48,7 +54,7 @@ export default function CategorySelection({ onNext, onBack }: Props) {
       </div>
 
       <div className="space-y-3">
-        {scannedItems.map((item) => (
+        {items.map((item) => (
           <label
             key={item.id}
             className="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition hover:border-slate-700"
@@ -57,7 +63,7 @@ export default function CategorySelection({ onNext, onBack }: Props) {
               <input
                 type="checkbox"
                 checked={item.selected}
-                onChange={() => toggleItem(item.id)}
+                onChange={() => toggle(item.id)}
                 className="h-5 w-5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500"
               />
               <div>
