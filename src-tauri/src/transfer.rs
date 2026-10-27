@@ -59,7 +59,7 @@ pub async fn send_file(
     write_bytes(&mut stream, &expected).await?;
 
     let resume_offset = read_u64(&mut stream).await?;
-    let mut offset = resume_offset.min(file_size);
+    let offset = resume_offset.min(file_size);
     file.seek(std::io::SeekFrom::Start(offset))
         .await
         .map_err(|e| e.to_string())?;

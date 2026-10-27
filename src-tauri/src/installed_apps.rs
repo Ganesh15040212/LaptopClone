@@ -39,18 +39,18 @@ fn collect_installed_apps() -> Result<Vec<AppItem>, Box<dyn std::error::Error>> 
 
 fn collect_from_key(key: &RegKey, apps: &mut Vec<AppItem>, seen: &mut HashSet<String>) {
     // If this key itself describes an application, record it.
-    if let Ok(name) = key.get_value::<_, String>("DisplayName") {
+    if let Ok(name) = key.get_value::<String, _>("DisplayName") {
         if !name.trim().is_empty() {
             let version = key
-                .get_value::<_, String>("DisplayVersion")
+                .get_value::<String, _>("DisplayVersion")
                 .unwrap_or_default();
             let publisher = key
-                .get_value::<_, String>("Publisher")
+                .get_value::<String, _>("Publisher")
                 .unwrap_or_default();
 
             // Skip system components and child MSI components.
-            let system_component: u32 = key.get_value::<_, u32>("SystemComponent").unwrap_or(0);
-            let has_parent: Result<String, _> = key.get_value::<_, String>("ParentKeyName");
+            let system_component: u32 = key.get_value::<u32, _>("SystemComponent").unwrap_or(0);
+            let has_parent: Result<String, _> = key.get_value::<String, _>("ParentKeyName");
 
             if system_component != 1
                 && has_parent.is_err()
@@ -76,8 +76,8 @@ fn collect_from_key(key: &RegKey, apps: &mut Vec<AppItem>, seen: &mut HashSet<St
     }
 
     // Recurse into all subkeys.
-    if let Ok(subkeys) = key.enum_keys() {
-        for subkey_name in subkeys.flatten() {
+    if true {
+        for subkey_name in key.enum_keys().flatten() {
             if let Ok(subkey) = key.open_subkey(&subkey_name) {
                 collect_from_key(&subkey, apps, seen);
             }

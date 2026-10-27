@@ -34,9 +34,9 @@ pub fn start_announcer(device_name: &str, port: u16) -> Result<(), Box<dyn Error
     let ip = get_if_addrs()
         .ok()
         .and_then(|interfaces| {
-            interfaces.into_iter().find_map(|iface| match iface.addr() {
+            interfaces.into_iter().find_map(|iface| match iface.addr {
                 if_addrs::IfAddr::V4(_) if !iface.is_loopback() => {
-                    Some(iface.addr().ip().to_string())
+                    Some(iface.addr.ip().to_string())
                 }
                 _ => None,
             })
